@@ -62,7 +62,6 @@
 
     .toolbar-header,
     .toolbar-actions,
-    .result-header,
     .modal-header,
     .form-actions {
       display: flex;
@@ -195,15 +194,11 @@
     .chip-button { border: 0; cursor: pointer; }
     .chip-button::after { content: "×"; opacity: 0.82; }
 
-    .result-header {
-      margin-bottom: 14px;
-      padding: 16px 18px;
-    }
-
     .result-count {
-      margin: 0;
+      margin: 0 0 0 auto;
       color: var(--muted);
       font-weight: 950;
+      text-align: right;
     }
 
     .record-list {
@@ -284,11 +279,11 @@
 
     @media (max-width: 560px) {
       .app-shell { padding: 12px; }
-      .toolbar, .result-header { padding: 14px; border-radius: 20px; }
-      .toolbar { position: static; }
-      .toolbar-header, .result-header, .modal-header, .form-actions { align-items: stretch; }
-      .toolbar-header, .result-header { flex-direction: column; }
+      .toolbar { padding: 14px; border-radius: 20px; position: static; }
+      .toolbar-header, .modal-header, .form-actions { align-items: stretch; }
+      .toolbar-header { flex-direction: column; }
       .toolbar-header-actions, .toolbar-header-actions > button, .toolbar-actions > button, .form-actions > button { width: 100%; }
+      .result-count { width: 100%; margin-left: 0; }
       .search-grid { grid-template-columns: 1fr; }
       .record-card { grid-template-columns: 1fr; padding: 14px; }
       .modal { max-height: calc(100dvh - 24px); padding: 14px; border-radius: 20px; }
@@ -325,14 +320,11 @@
 
         <div class="toolbar-actions">
           <button id="clearFiltersButton" class="secondary-button" type="button">検索条件を一括解除</button>
+          <p id="resultCount" class="result-count" aria-live="polite">検索結果 0件</p>
         </div>
       </div>
     </section>
 
-    <section class="result-header viewer-card" aria-live="polite">
-      <p id="resultCount" class="result-count">検索結果 0件</p>
-      <p class="result-count">初期表示：レコード作成日時の降順</p>
-    </section>
 
     <section id="recordList" class="record-list" aria-label="検索結果一覧"></section>
   </main>

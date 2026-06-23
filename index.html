@@ -50,26 +50,6 @@
       backdrop-filter: blur(14px);
     }
 
-    .hero {
-      display: grid;
-      gap: 8px;
-      margin-bottom: 18px;
-      padding: 22px;
-    }
-
-    .hero h1 {
-      margin: 0;
-      font-size: clamp(1.55rem, 3vw, 2.5rem);
-      letter-spacing: 0.02em;
-    }
-
-    .hero p {
-      margin: 0;
-      color: var(--muted);
-      font-weight: 750;
-      line-height: 1.7;
-    }
-
     .toolbar {
       position: sticky;
       top: 12px;
@@ -102,7 +82,7 @@
     .toolbar-actions,
     .form-actions { flex-wrap: wrap; }
 
-    .toolbar-toggle, .toolbar-close, .toolbar-open-fixed, .orientation-toggle, .primary-button,
+    .toolbar-toggle, .toolbar-open-fixed, .primary-button,
     .secondary-button, .danger-button, .chip-button, .icon-button {
       border: 0;
       border-radius: 999px;
@@ -118,7 +98,7 @@
       box-shadow: 0 10px 22px rgba(42, 39, 58, 0.16);
     }
 
-    .toolbar-close, .orientation-toggle, .secondary-button {
+    .secondary-button {
       color: var(--accent);
       background: rgba(111, 93, 231, 0.12);
     }
@@ -296,25 +276,6 @@
     .detail-item { padding: 12px; border-radius: 16px; background: rgba(111, 93, 231, 0.08); }
     .detail-item p { margin: 5px 0 0; line-height: 1.7; white-space: pre-wrap; overflow-wrap: anywhere; }
 
-    body.landscape-view { overflow: hidden; background: #f7f3eb; }
-    body.landscape-view .app-shell {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      width: 100dvh;
-      height: 100dvw;
-      max-width: none;
-      overflow-y: auto;
-      padding: 12px;
-      transform: translate(-50%, -50%) rotate(90deg);
-      transform-origin: center;
-    }
-
-    @media (orientation: landscape) {
-      body.landscape-view { overflow: auto; }
-      body.landscape-view .app-shell { position: static; width: min(1180px, 100%); height: auto; transform: none; }
-    }
-
     @media (max-width: 860px) {
       .search-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .record-card { grid-template-columns: 1fr 1fr; }
@@ -323,7 +284,7 @@
 
     @media (max-width: 560px) {
       .app-shell { padding: 12px; }
-      .hero, .toolbar, .result-header { padding: 14px; border-radius: 20px; }
+      .toolbar, .result-header { padding: 14px; border-radius: 20px; }
       .toolbar { position: static; }
       .toolbar-header, .result-header, .modal-header, .form-actions { align-items: stretch; }
       .toolbar-header, .result-header { flex-direction: column; }
@@ -338,17 +299,11 @@
   <main class="app-shell">
     <button id="toolbarOpenFixed" class="toolbar-open-fixed" type="button" hidden>メニューを開く</button>
 
-    <section class="hero viewer-card" aria-labelledby="appTitle">
-      <h1 id="appTitle">録画DVD番組ライブラリ</h1>
-      <p>録画DVDに収録した「番組1本」を1レコードとして検索・管理する確認用フロント画面です。データはブラウザを開いている間だけJavaScript上で更新されます。</p>
-    </section>
-
     <section id="toolbar" class="toolbar viewer-card" aria-label="検索メニュー">
       <div class="toolbar-header">
         <p class="toolbar-title">検索・操作メニュー</p>
         <div class="toolbar-header-actions">
-          <button id="orientationToggle" class="orientation-toggle" type="button" aria-pressed="false">横持ち表示</button>
-          <button id="toolbarClose" class="toolbar-close" type="button">閉じる</button>
+          <button id="newButton" class="primary-button" type="button">新規登録</button>
           <button id="toolbarToggle" class="toolbar-toggle" type="button" aria-expanded="true" aria-controls="toolbarContent">メニューを閉じる</button>
         </div>
       </div>
@@ -369,7 +324,6 @@
         </div>
 
         <div class="toolbar-actions">
-          <button id="newButton" class="primary-button" type="button">新規登録</button>
           <button id="clearFiltersButton" class="secondary-button" type="button">検索条件を一括解除</button>
         </div>
       </div>
@@ -461,9 +415,7 @@
       toolbar: document.querySelector("#toolbar"),
       toolbarContent: document.querySelector("#toolbarContent"),
       toolbarToggle: document.querySelector("#toolbarToggle"),
-      toolbarClose: document.querySelector("#toolbarClose"),
       toolbarOpenFixed: document.querySelector("#toolbarOpenFixed"),
-      orientationToggle: document.querySelector("#orientationToggle"),
       dvdNumberInput: document.querySelector("#dvdNumberInput"),
       broadcastDateInput: document.querySelector("#broadcastDateInput"),
       titleInput: document.querySelector("#titleInput"),
@@ -674,17 +626,6 @@
       selectors.toolbarOpenFixed.hidden = isVisible;
     }
 
-    let isLandscapeView = false;
-    async function setLandscapeView(isEnabled) {
-      isLandscapeView = isEnabled;
-      document.body.classList.toggle("landscape-view", isLandscapeView);
-      selectors.orientationToggle.classList.toggle("is-active", isLandscapeView);
-      selectors.orientationToggle.setAttribute("aria-pressed", String(isLandscapeView));
-      selectors.orientationToggle.textContent = isLandscapeView ? "横持ち解除" : "横持ち表示";
-      if (!isLandscapeView && document.fullscreenElement) await document.exitFullscreen().catch(() => {});
-      if (isLandscapeView && !document.fullscreenElement && document.documentElement.requestFullscreen) await document.documentElement.requestFullscreen().catch(() => {});
-    }
-
     [selectors.dvdNumberInput, selectors.broadcastDateInput, selectors.titleInput, selectors.tagInput, selectors.excludeTagInput]
       .forEach((input) => input.addEventListener("input", renderProgramList));
 
@@ -725,10 +666,7 @@
     document.addEventListener("keydown", (event) => { if (event.key === "Escape") closeModals(); });
 
     selectors.toolbarToggle.addEventListener("click", () => setToolbarExpanded(selectors.toolbarContent.hidden));
-    selectors.toolbarClose.addEventListener("click", () => setToolbarVisible(false));
     selectors.toolbarOpenFixed.addEventListener("click", () => setToolbarVisible(true));
-    selectors.orientationToggle.addEventListener("click", () => setLandscapeView(!isLandscapeView));
-    document.addEventListener("fullscreenchange", () => { if (!document.fullscreenElement && isLandscapeView) setLandscapeView(false); });
 
     renderProgramList();
   </script>
